@@ -1,8 +1,6 @@
 name: Run Spectral on Pull Requests
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
     branches: [ main ]
 
