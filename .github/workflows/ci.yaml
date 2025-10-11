@@ -1,0 +1,22 @@
+name: Run Spectral on Pull Requests
+
+permissions:
+  contents: read
+  checks: write        # ← Check Runs へ書き込む
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Run Spectral
+    runs-on: ubuntu-latest
+    steps:
+      # Check out the repository
+      - uses: actions/checkout@v5
+
+      # Run Spectral
+      - uses: stoplightio/spectral-action@latest
+        with:
+          file_glob: '**/openapi.yaml'
