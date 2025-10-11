@@ -272,14 +272,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /v1alpha1/usergroups:
+  /v1alpha1/projects/{projectId}/usergroups:
     get:
       operationId: listUserGroups
       tags:
         - Users
       summary: List user groups
-      description: Retrieve a list of all user groups.
+      description: Retrieve a list of all user groups in a project.
       parameters:
+        - name: projectId
+          in: path
+          description: ID of the project
+          required: true
+          schema:
+            type: string
         - name: limit
           in: query
           description: Maximum number of user groups to return
@@ -306,6 +312,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/UserGroup'
+        '404':
+          description: Project not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error.
           content:
@@ -317,7 +329,14 @@ paths:
       tags:
         - Users
       summary: Create user group
-      description: Create a new user group.
+      description: Create a new user group in a project.
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the project
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -337,20 +356,32 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Project not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /v1alpha1/usergroups/{groupId}:
+  /v1alpha1/projects/{projectId}/usergroups/{groupId}:
     get:
       operationId: getUserGroup
       tags:
         - Users
       summary: Get user group by ID
-      description: Retrieve a user group by its ID.
+      description: Retrieve a user group by its ID in a project.
       parameters:
+        - name: projectId
+          in: path
+          description: ID of the project
+          required: true
+          schema:
+            type: string
         - name: groupId
           in: path
           description: ID of the user group to retrieve
@@ -365,7 +396,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserGroup'
         '404':
-          description: User group not found.
+          description: User group or project not found.
           content:
             application/json:
               schema:
@@ -381,8 +412,14 @@ paths:
       tags:
         - Users
       summary: Update user group
-      description: Update an existing user group.
+      description: Update an existing user group in a project.
       parameters:
+        - name: projectId
+          in: path
+          description: ID of the project
+          required: true
+          schema:
+            type: string
         - name: groupId
           in: path
           description: ID of the user group to update
@@ -409,7 +446,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '404':
-          description: User group not found.
+          description: User group or project not found.
           content:
             application/json:
               schema:
@@ -420,14 +457,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /v1alpha1/roles:
+  /v1alpha1/projects/{projectId}/roles:
     get:
       operationId: listRoles
       tags:
-        - Roles 
+        - Roles
       summary: List roles
-      description: Retrieve a list of all roles.
+      description: Retrieve a list of all roles in a project.
       parameters:
+        - name: projectId
+          in: path
+          description: ID of the project
+          required: true
+          schema:
+            type: string
         - name: limit
           in: query
           description: Maximum number of roles to return
@@ -454,6 +497,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Role'
+        '404':
+          description: Project not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error.
           content:
@@ -463,9 +512,16 @@ paths:
     post:
       operationId: createRole
       tags:
-        - Roles 
+        - Roles
       summary: Create role
-      description: Create a new role.
+      description: Create a new role in a project.
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the project
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -485,20 +541,32 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Project not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /v1alpha1/roles/{roleId}:
+  /v1alpha1/projects/{projectId}/roles/{roleId}:
     get:
       operationId: getRole
       tags:
-        - Roles 
+        - Roles
       summary: Get role by ID
-      description: Retrieve a role by its ID.
+      description: Retrieve a role by its ID in a project.
       parameters:
+        - name: projectId
+          in: path
+          description: ID of the project
+          required: true
+          schema:
+            type: string
         - name: roleId
           in: path
           description: ID of the role to retrieve
@@ -513,7 +581,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Role'
         '404':
-          description: Role not found.
+          description: Role or project not found.
           content:
             application/json:
               schema:
@@ -527,10 +595,16 @@ paths:
     put:
       operationId: updateRole
       tags:
-        - Roles 
+        - Roles
       summary: Update role
-      description: Update an existing role.
+      description: Update an existing role in a project.
       parameters:
+        - name: projectId
+          in: path
+          description: ID of the project
+          required: true
+          schema:
+            type: string
         - name: roleId
           in: path
           description: ID of the role to update
@@ -544,20 +618,20 @@ paths:
             schema:
               $ref: '#/components/schemas/UpdateRoleRequest'
       responses:
-        '200': 
+        '200':
           description: Role updated successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Role' 
+                $ref: '#/components/schemas/Role'
         '400':
           description: Bad request.
-          content: 
+          content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '404':
-          description: Role not found. 
+          description: Role or project not found.
           content:
             application/json:
               schema:
@@ -621,6 +695,7 @@ components:
       required:
         - id
         - name
+        - project
       properties:
         id:
           type: string
@@ -628,6 +703,8 @@ components:
           type: string
         description:
           type: string
+        project:
+          $ref: '#/components/schemas/Project'
         attributes:
           type: array
           items:
@@ -667,6 +744,7 @@ components:
         - name
         - description
         - members
+        - project
       properties:
         id:
           type: string
@@ -674,6 +752,8 @@ components:
           type: string
         description:
           type: string
+        project:
+          $ref: '#/components/schemas/Project'
         members:
           type: array
           items:
