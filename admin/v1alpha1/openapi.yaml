@@ -1,3 +1,4 @@
+# 原則1: PUTはGETが叩かれていることを前提にしているので､フィールドすべて必須にする
 openapi: 3.0.4
 info:
   title: Admin API
@@ -16,6 +17,10 @@ tags:
     description: Health check endpoints for monitoring service status
   - name: Projects
     description: Project management operations
+  - name: Users
+    description: User management operations
+  - name: Roles
+    description: Role management operations
 
 paths:
   /v1alpha1/health/liveness:
@@ -117,6 +122,452 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /v1alpha1/projects/{projectId}:
+    get:
+      operationId: getProject
+      tags:
+        - Projects
+      summary: Get project by ID
+      description: Retrieve a project by its ID.
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the project to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Project details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'    
+        '404':
+          description: Project not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:      
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      operationId: updateProject
+      tags:
+        - Projects
+      summary: Update project
+      description: Update an existing project.
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the project to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProjectRequest'
+      responses:
+        '200':
+          description: Project updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Project not found.
+          content:
+            application/json:   
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
+        '500':
+          description: Internal server error.
+          content:    
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1alpha1/users:
+    get:
+      operationId: listUsers
+      tags:
+        - Users
+      summary: List users
+      description: Retrieve a list of all users.
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of users to return
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: offset
+          in: query
+          description: Number of users to skip for pagination
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: A list of users.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      operationId: createUser
+      tags:
+        - Users
+      summary: Create user
+      description: |
+        Create a new user.
+        Admin上で管理するユーザを作成するだけであり､真実源はAuth0で管理される
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: User created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1alpha1/usergroups:
+    get:
+      operationId: listUserGroups
+      tags:
+        - Users
+      summary: List user groups
+      description: Retrieve a list of all user groups.
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of user groups to return
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: offset
+          in: query
+          description: Number of user groups to skip for pagination
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: A list of user groups.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserGroup'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      operationId: createUserGroup
+      tags:
+        - Users
+      summary: Create user group
+      description: Create a new user group.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserGroupRequest'
+      responses:
+        '201':
+          description: User group created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserGroup'
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1alpha1/usergroups/{groupId}:
+    get:
+      operationId: getUserGroup
+      tags:
+        - Users
+      summary: Get user group by ID
+      description: Retrieve a user group by its ID.
+      parameters:
+        - name: groupId
+          in: path
+          description: ID of the user group to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User group details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserGroup'
+        '404':
+          description: User group not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      operationId: updateUserGroup
+      tags:
+        - Users
+      summary: Update user group
+      description: Update an existing user group.
+      parameters:
+        - name: groupId
+          in: path
+          description: ID of the user group to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserGroupRequest'
+      responses:
+        '200':
+          description: User group updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserGroup'
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User group not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1alpha1/roles:
+    get:
+      operationId: listRoles
+      tags:
+        - Roles 
+      summary: List roles
+      description: Retrieve a list of all roles.
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of roles to return
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: offset
+          in: query
+          description: Number of roles to skip for pagination
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: A list of roles.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Role'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      operationId: createRole
+      tags:
+        - Roles 
+      summary: Create role
+      description: Create a new role.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoleRequest'
+      responses:
+        '201':
+          description: Role created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1alpha1/roles/{roleId}:
+    get:
+      operationId: getRole
+      tags:
+        - Roles 
+      summary: Get role by ID
+      description: Retrieve a role by its ID.
+      parameters:
+        - name: roleId
+          in: path
+          description: ID of the role to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Role details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '404':
+          description: Role not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      operationId: updateRole
+      tags:
+        - Roles 
+      summary: Update role
+      description: Update an existing role.
+      parameters:
+        - name: roleId
+          in: path
+          description: ID of the role to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRoleRequest'
+      responses:
+        '200': 
+          description: Role updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role' 
+        '400':
+          description: Bad request.
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Role not found. 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 components:
   schemas:
@@ -144,9 +595,89 @@ components:
           type: string
         name:
           type: string
-        bio:
+        description:
           type: string
-          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    RoleAttribute:
+      type: object
+      required:
+        - id
+        - name
+        - description
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+    Role:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleAttribute'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    User:
+      type: object
+      required:
+        - id
+        - email
+        - roles
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    UserGroup:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - members
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
         createdAt:
           type: string
           format: date-time
@@ -160,6 +691,104 @@ components:
       properties:
         name:
           type: string
-        bio:
+        description:
           type: string
-          nullable: true
+        ownerIds:
+          type: array
+          items:
+            type: string
+          description: List of user IDs who will be owners of the project
+        ownerGroupIds:
+          type: array
+          items:
+            type: string
+          description: List of user group IDs who will be owners of the project
+    CreateUserRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+    UpdateProjectRequest:
+      type: object
+      required:
+        - name
+        - description
+        - ownerIds
+        - ownerGroupIds
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        ownerIds:
+          type: array
+          items:
+            type: string
+          description: List of user IDs who will be owners of the project
+        ownerGroupIds:
+          type: array
+          items:
+            type: string
+          description: List of user group IDs who will be owners of the project
+    CreateUserGroupRequest:
+      type: object
+      required:
+        - name
+        - description
+        - memberIds
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        memberIds:
+          type: array
+          items:
+            type: string
+          description: List of user IDs who will be members of the user group
+    UpdateUserGroupRequest:
+      type: object
+      required:
+        - name
+        - description
+        - memberIds
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        memberIds:
+          type: array
+          items:
+            type: string
+    CreateRoleRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        attributeIds:
+          type: array
+          items:
+            type: string
+    UpdateRoleRequest:
+      type: object
+      required:
+        - name
+        - description
+        - attributeIds
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        attributeIds:
+          type: array
+          items:
+            type: string
