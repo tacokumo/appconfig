@@ -655,6 +655,8 @@ components:
           example: "alive"
     ErrorResponse:
       type: object
+      required:
+        - error
       properties:
         error:
           type: string
@@ -664,6 +666,9 @@ components:
       required:
         - id
         - name
+        - description
+        - createdAt
+        - updatedAt
       properties:
         id:
           type: string
@@ -695,7 +700,11 @@ components:
       required:
         - id
         - name
+        - description
         - project
+        - attributes
+        - createdAt
+        - updatedAt
       properties:
         id:
           type: string
@@ -721,6 +730,8 @@ components:
         - id
         - email
         - roles
+        - createdAt
+        - updatedAt
       properties:
         id:
           type: string
@@ -745,6 +756,8 @@ components:
         - description
         - members
         - project
+        - createdAt
+        - updatedAt
       properties:
         id:
           type: string
@@ -768,6 +781,9 @@ components:
       type: object
       required:
         - name
+        - description
+        - ownerIds
+        - ownerGroupIds
       properties:
         name:
           type: string
@@ -848,6 +864,8 @@ components:
       type: object
       required:
         - name
+        - description
+        - attributeIds
       properties:
         name:
           type: string
