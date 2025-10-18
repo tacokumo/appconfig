@@ -788,6 +788,7 @@ components:
       required:
         - name
         - description
+        - kind
         - ownerIds
         - ownerGroupIds
       properties:
@@ -795,6 +796,11 @@ components:
           type: string
         description:
           type: string
+        kind:
+          type: string
+          enum:
+            - personal
+            - shared
         ownerIds:
           type: array
           items:
