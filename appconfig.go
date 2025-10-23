@@ -6,7 +6,7 @@ type AppConfig struct {
 	AppName  string          `json:"app_name" yaml:"app_name" validate:"required"`
 	Build    BuildConfig     `json:"build" yaml:"build" validate:"required"`
 	Releases []ReleaseConfig `json:"releases" yaml:"releases" validate:"required"`
-	Services []ServiceConfig `json:"services" yaml:"services" validate:"required,min=1"`
+	Service ServiceConfig `json:"service" yaml:"service" validate:"required"`
 }
 
 func (c *AppConfig) Validate() error {

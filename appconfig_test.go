@@ -32,14 +32,34 @@ func TestAppConfig_Validate(t *testing.T) {
 						},
 					},
 				},
-				Services: []ServiceConfig{
-					{
-						Name:    "web",
-						Command: []string{"npm", "start"},
-					},
+				Service: ServiceConfig{
+					Name:    "web",
+					Command: []string{"npm", "start"},
 				},
 			},
 			wantErr: false,
+		},
+		{
+			name: "Serviceが設定されていない場合、エラーになる",
+			config: AppConfig{
+				AppName: "myapp",
+				Build: BuildConfig{
+					Image: "myapp:latest",
+				},
+				Releases: []ReleaseConfig{
+					{
+						Name: "release-v1",
+						Resources: ResourceConfig{
+							CPU:    "500m",
+							Memory: "256Mi",
+						},
+						Action: ReleaseActionConfig{
+							Command: []string{"echo", "deploy"},
+						},
+					},
+				},
+			},
+			wantErr: true,
 		},
 	}
 
