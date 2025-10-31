@@ -1,14 +1,13 @@
-# Portal API manages projects, applications, deployment, and permissions within a specific portal instance
+# Portal API manages applications, deployment, and permissions within a specific portal instance
 openapi: 3.0.4
 info:
   title: Portal API
   description: |
-    Portal API for managing projects, applications, deployment, and permissions.
+    Portal API for managing applications, deployment, and permissions.
     Portal is the main entity that manages:
-    - Project CRUD operations
     - Application CRUD operations
     - Application deployment and distribution based on spec and code updates
-    - User and project/application permission management
+    - User and application permission management
   version: 0.1.0
   contact:
     name: tacokumo-maintainers
@@ -21,10 +20,8 @@ servers:
 tags:
   - name: Health
     description: Health check endpoints for monitoring service status
-  - name: Projects
-    description: Project management operations within the portal
   - name: Applications
-    description: Application management operations within projects
+    description: Application management operations
   - name: Deployments
     description: Application deployment operations
 
@@ -57,196 +54,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthResponse'
-  /v1alpha1/projects:
-    get:
-      operationId: listProjects
-      tags:
-        - Projects
-      summary: List projects
-      description: Retrieve a list of all projects in this portal.
-      parameters:
-        - name: limit
-          in: query
-          description: Maximum number of projects to return
-          required: true
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 10
-        - name: offset
-          in: query
-          description: Number of projects to skip for pagination
-          required: true
-          schema:
-            type: integer
-            minimum: 0
-            default: 0
-      responses:
-        '200':
-          description: A list of projects.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Project'
-        '500':
-          description: Internal server error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-    post:
-      operationId: createProject
-      tags:
-        - Projects
-      summary: Create project
-      description: Create a new project in this portal.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateProjectRequest'
-      responses:
-        '201':
-          description: Project created successfully.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Project'
-        '400':
-          description: Bad request.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Internal server error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /v1alpha1/projects/{projectId}:
-    get:
-      operationId: getProject
-      tags:
-        - Projects
-      summary: Get project by ID
-      description: Retrieve a project by its ID.
-      parameters:
-        - name: projectId
-          in: path
-          description: ID of the project to retrieve
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Project details.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Project'
-        '404':
-          description: Project not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Internal server error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-    put:
-      operationId: updateProject
-      tags:
-        - Projects
-      summary: Update project
-      description: Update an existing project.
-      parameters:
-        - name: projectId
-          in: path
-          description: ID of the project to update
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateProjectRequest'
-      responses:
-        '200':
-          description: Project updated successfully.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Project'
-        '400':
-          description: Bad request.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Project not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Internal server error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-    delete:
-      operationId: deleteProject
-      tags:
-        - Projects
-      summary: Delete project
-      description: Delete a project by its ID.
-      parameters:
-        - name: projectId
-          in: path
-          description: ID of the project to delete
-          required: true
-          schema:
-            type: string
-      responses:
-        '204':
-          description: Project deleted successfully.
-        '404':
-          description: Project not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Internal server error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /v1alpha1/projects/{projectId}/applications:
+  /v1alpha1/applications:
     get:
       operationId: listApplications
       tags:
         - Applications
       summary: List applications
-      description: Retrieve a list of all applications in a project.
+      description: Retrieve a list of all applications in this portal.
       parameters:
-        - name: projectId
-          in: path
-          description: ID of the project
-          required: true
-          schema:
-            type: string
         - name: limit
           in: query
           description: Maximum number of applications to return
@@ -273,12 +88,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Application'
-        '404':
-          description: Project not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error.
           content:
@@ -290,14 +99,7 @@ paths:
       tags:
         - Applications
       summary: Create application
-      description: Create a new application in a project.
-      parameters:
-        - name: projectId
-          in: path
-          description: ID of the project
-          required: true
-          schema:
-            type: string
+      description: Create a new application in this portal.
       requestBody:
         required: true
         content:
@@ -317,19 +119,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Project not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /v1alpha1/projects/{projectId}/applications/{applicationId}:
+  /v1alpha1/applications/{applicationId}:
     get:
       operationId: getApplication
       tags:
@@ -337,12 +133,6 @@ paths:
       summary: Get application by ID
       description: Retrieve an application by its ID.
       parameters:
-        - name: projectId
-          in: path
-          description: ID of the project
-          required: true
-          schema:
-            type: string
         - name: applicationId
           in: path
           description: ID of the application to retrieve
@@ -357,7 +147,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Application'
         '404':
-          description: Application or project not found.
+          description: Application not found.
           content:
             application/json:
               schema:
@@ -375,12 +165,6 @@ paths:
       summary: Update application
       description: Update an existing application.
       parameters:
-        - name: projectId
-          in: path
-          description: ID of the project
-          required: true
-          schema:
-            type: string
         - name: applicationId
           in: path
           description: ID of the application to update
@@ -407,7 +191,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '404':
-          description: Application or project not found.
+          description: Application not found.
           content:
             application/json:
               schema:
@@ -425,12 +209,6 @@ paths:
       summary: Delete application
       description: Delete an application by its ID.
       parameters:
-        - name: projectId
-          in: path
-          description: ID of the project
-          required: true
-          schema:
-            type: string
         - name: applicationId
           in: path
           description: ID of the application to delete
@@ -441,7 +219,7 @@ paths:
         '204':
           description: Application deleted successfully.
         '404':
-          description: Application or project not found.
+          description: Application not found.
           content:
             application/json:
               schema:
@@ -452,7 +230,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /v1alpha1/projects/{projectId}/applications/{applicationId}/deployments:
+  /v1alpha1/applications/{applicationId}/deployments:
     get:
       operationId: listDeployments
       tags:
@@ -460,12 +238,6 @@ paths:
       summary: List deployments
       description: Retrieve a list of all deployments for an application.
       parameters:
-        - name: projectId
-          in: path
-          description: ID of the project
-          required: true
-          schema:
-            type: string
         - name: applicationId
           in: path
           description: ID of the application
@@ -499,7 +271,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Deployment'
         '404':
-          description: Application or project not found.
+          description: Application not found.
           content:
             application/json:
               schema:
@@ -517,12 +289,6 @@ paths:
       summary: Create deployment
       description: Create a new deployment for an application.
       parameters:
-        - name: projectId
-          in: path
-          description: ID of the project
-          required: true
-          schema:
-            type: string
         - name: applicationId
           in: path
           description: ID of the application
@@ -549,7 +315,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '404':
-          description: Application or project not found.
+          description: Application not found.
           content:
             application/json:
               schema:
@@ -560,7 +326,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /v1alpha1/projects/{projectId}/applications/{applicationId}/deployments/{deploymentId}:
+  /v1alpha1/applications/{applicationId}/deployments/{deploymentId}:
     get:
       operationId: getDeployment
       tags:
@@ -568,12 +334,6 @@ paths:
       summary: Get deployment by ID
       description: Retrieve a deployment by its ID.
       parameters:
-        - name: projectId
-          in: path
-          description: ID of the project
-          required: true
-          schema:
-            type: string
         - name: applicationId
           in: path
           description: ID of the application
@@ -594,7 +354,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Deployment'
         '404':
-          description: Deployment, application, or project not found.
+          description: Deployment or application not found.
           content:
             application/json:
               schema:
@@ -624,34 +384,12 @@ components:
         error:
           type: string
           example: "Internal server error"
-    Project:
-      type: object
-      required:
-        - id
-        - name
-        - description
-        - createdAt
-        - updatedAt
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        description:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
     Application:
       type: object
       required:
         - id
         - name
         - description
-        - projectId
         - repository
         - createdAt
         - updatedAt
@@ -661,8 +399,6 @@ components:
         name:
           type: string
         description:
-          type: string
-        projectId:
           type: string
         repository:
           type: object
@@ -721,26 +457,6 @@ components:
           type: string
           format: date-time
           description: Timestamp when deployment completed
-    CreateProjectRequest:
-      type: object
-      required:
-        - name
-        - description
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-    UpdateProjectRequest:
-      type: object
-      required:
-        - name
-        - description
-      properties:
-        name:
-          type: string
-        description:
-          type: string
     CreateApplicationRequest:
       type: object
       required:
