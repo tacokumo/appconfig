@@ -20,6 +20,8 @@ servers:
 tags:
   - name: Health
     description: Health check endpoints for monitoring service status
+  - name: Authentication
+    description: User authentication and session management
   - name: Applications
     description: Application management operations
   - name: Deployments
@@ -54,6 +56,139 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthResponse'
+  /v1alpha1/auth/login:
+    get:
+      operationId: initiateLogin
+      tags:
+        - Authentication
+      summary: Initiate OAuth login
+      description: |
+        Initiates the GitHub OAuth authentication flow.
+        Redirects the user to GitHub for authentication.
+      parameters:
+        - name: redirect_uri
+          in: query
+          description: URI to redirect to after successful authentication
+          required: false
+          schema:
+            type: string
+            format: uri
+      responses:
+        '302':
+          description: Redirect to GitHub OAuth authorization
+        '400':
+          description: Bad request - invalid redirect URI
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1alpha1/auth/callback:
+    get:
+      operationId: handleOAuthCallback
+      tags:
+        - Authentication
+      summary: Handle OAuth callback
+      description: |
+        Handles the GitHub OAuth callback, exchanges the authorization code for tokens,
+        creates a user session, and redirects to the frontend.
+      parameters:
+        - name: code
+          in: query
+          description: Authorization code from GitHub
+          required: true
+          schema:
+            type: string
+        - name: state
+          in: query
+          description: State parameter for CSRF protection
+          required: true
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirect to frontend with successful authentication
+        '400':
+          description: Bad request - invalid or missing parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1alpha1/auth/logout:
+    post:
+      operationId: logout
+      tags:
+        - Authentication
+      summary: Logout user
+      description: |
+        Invalidates the user session and clears authentication cookies.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      responses:
+        '204':
+          description: Successfully logged out
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1alpha1/auth/me:
+    get:
+      operationId: getCurrentUser
+      tags:
+        - Authentication
+      summary: Get current user
+      description: |
+        Returns information about the currently authenticated user,
+        including their bearer token for API access.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      responses:
+        '200':
+          description: Current user information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticatedUser'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1alpha1/auth/refresh:
+    post:
+      operationId: refreshToken
+      tags:
+        - Authentication
+      summary: Refresh access token
+      description: |
+        Refreshes the GitHub access token using the refresh token.
+        Updates the user session with new tokens.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticatedUser'
+        '401':
+          description: Not authenticated or refresh token invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /v1alpha1/applications:
     get:
       operationId: listApplications
@@ -61,6 +196,9 @@ paths:
         - Applications
       summary: List applications
       description: Retrieve a list of all applications in this portal.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
       parameters:
         - name: limit
           in: query
@@ -100,6 +238,9 @@ paths:
         - Applications
       summary: Create application
       description: Create a new application in this portal.
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
       requestBody:
         required: true
         content:
@@ -367,6 +508,16 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: Bearer token obtained from OAuth flow
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: session_id
+      description: Session cookie for web applications
   schemas:
     HealthResponse:
       type: object
@@ -515,3 +666,75 @@ components:
         commitSha:
           type: string
           description: Git commit SHA to deploy
+    AuthenticatedUser:
+      type: object
+      required:
+        - user
+        - bearer_token
+        - team_memberships
+      properties:
+        user:
+          $ref: '#/components/schemas/GitHubUser'
+        bearer_token:
+          type: string
+          description: Bearer token for API access
+        team_memberships:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamMembership'
+    GitHubUser:
+      type: object
+      required:
+        - id
+        - github_id
+        - username
+        - email
+        - name
+        - avatar_url
+      properties:
+        id:
+          type: string
+          description: Internal user ID
+        github_id:
+          type: integer
+          format: int64
+          description: GitHub user ID
+        username:
+          type: string
+          description: GitHub username
+        email:
+          type: string
+          format: email
+          description: User email address
+        name:
+          type: string
+          description: User display name
+        avatar_url:
+          type: string
+          format: uri
+          description: User avatar URL
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    TeamMembership:
+      type: object
+      required:
+        - org_name
+        - team_name
+        - role
+      properties:
+        org_name:
+          type: string
+          description: GitHub organization name
+        team_name:
+          type: string
+          description: GitHub team name
+        role:
+          type: string
+          enum:
+            - member
+            - maintainer
+          description: User role in the team
