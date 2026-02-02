@@ -1,6 +1,6 @@
-module github.com/tacokumo/api-spec
+module github.com/tacokumo/appconfig
 
-go 1.25.1
+go 1.25.6
 
 require github.com/go-playground/validator/v10 v10.28.0
 
