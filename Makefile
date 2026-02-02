@@ -1,5 +1,5 @@
 .PHONY: all
-all: format test
+all: format test lint
 
 .PHONY: format
 format:
@@ -8,3 +8,7 @@ format:
 .PHONY: test
 test:
 	go test -v ./...
+
+.PHONY: lint
+lint:
+	golangci-lint run
