@@ -65,7 +65,7 @@ type ServiceConfig struct {
 	// Command はサービスの起動コマンド
 	Command []string `json:"command" yaml:"command" validate:"required,min=1,required"`
 	// HTTP はサービスのHTTP設定
-	HTTP *ServiceHTTPConfig `json:"http,omitempty" yaml:"http,omitempty"`
+	HTTP []ServiceHTTPConfig `json:"http,omitempty" yaml:"http,omitempty"`
 	// Healthcheck はサービスのヘルスチェック設定
 	Healthcheck *HealthcheckConfig `json:"healthcheck,omitempty" yaml:"healthcheck,omitempty"`
 	// Scale はサービスのスケーリング設定
